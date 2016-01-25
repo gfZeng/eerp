@@ -1,0 +1,48 @@
+@import 'jeet/jeet';
+@include j-edit;
+
+$font-stack:    Helvetica, sans-serif;
+$primary-color: #333;
+$header-theme-color: #333745;
+
+$header-height: 43px;
+
+body {
+  padding-top: 70px;
+  font: 100% $font-stack;
+  color: $primary-color;
+}
+
+header {
+  font-size: 1.4em;
+  &.navbar {
+    min-height: $header-height;
+    &, * {
+      max-height: $header-height;
+    }
+
+    .navbar-nav > li { 
+      > a, > i {
+        padding-top: 0px;
+        line-height: $header-height;
+      }
+
+      .fa-user {
+        color: #fff;
+      }
+    }
+  }
+
+}
+
+section {
+  @include j-center;
+}
+
+aside {
+  @include j-column(1/3);
+}
+
+article {
+  @include j-column(2/3);
+}
