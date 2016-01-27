@@ -1,0 +1,14 @@
+:uri-prefix = http://localhost:3000/api/v1
+
+
+## login api
+POST :uri-prefix/sessions/new
+Content-Type: application/json; charset=utf-8
+
+{
+  "user":
+  {
+    "user/name": "isaac",
+    "user/password": "lazy"
+  }
+}

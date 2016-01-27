@@ -1,13 +1,15 @@
 (ns erp.handler
-  (:require [ring.adapter.jetty :refer (run-jetty)]
-            [ring.middleware.session.cookie :refer (cookie-store)]
-            [compojure.core :refer :all]
+  (:require [compojure.core :refer :all]
             [compojure.route :as route]
-            [noir.util.middleware :refer (app-handler)]
-            [taoensso.timbre :refer (log info debug warn)]
-
+            [erp.ctrl :as ctrl]
+            [erp.util :as util]
             [erp.view :as view]
-            [erp.ctrl :as ctrl]))
+            [noir.util.middleware :refer (app-handler)]
+            [ring.adapter.jetty :refer (run-jetty)]
+            [ring.middleware.defaults :refer (site-defaults)]
+            [ring.middleware.format :refer (wrap-restful-format)]
+            [ring.middleware.session.cookie :refer (cookie-store)]
+            [taoensso.timbre :refer (log info debug warn)]))
 
 
 (defonce SERVER (atom nil))
@@ -21,9 +23,11 @@
 
 (def app
   (app-handler
-   [page-routes]
+   [page-routes (context (util/api-path) _ public-api-routes)]
    :session-options {:cookie-name "erp"
-                     :store (cookie-store)}))
+                     :store (cookie-store)}
+   :ring-defaults (dissoc-in site-defaults [:security :anti-forgery])
+   :middleware [#(wrap-restful-format % :formats [:edn :json-kw])]))
 
 (defn run-server [& {:as opts}]
   (when @SERVER

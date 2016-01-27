@@ -3,7 +3,7 @@
             cljsjs.bootstrap
             [rum.core :as rum :refer-macros (defc)]
 
-            [erp.session :as session]))
+            [erp.session :as session :refer-macros (with-login)]))
 
 (defc main-view []
   )
@@ -42,4 +42,5 @@
 
 (defn init []
   (enable-console-print!)
-  (render))
+  (session/with-login
+    (render)))
