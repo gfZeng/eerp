@@ -3,10 +3,12 @@
             [datomic.api :as d]
             [erp.db :as db :refer (conn)]))
 
+(defn by-ident [ident]
+  (d/entity (d/db @conn) ident))
+
+(defn attr [ident attr]
+  (get ident (by-ident ident)))
+
 (defn add-user [user]
-  (let [user (-> user
-                 (rename-keys {:name :user/name
-                               :email :user/email
-                               :password :user/password})
-                 (select-keys [:user/name :user/email :user/password]))]
-    @(d/transact (d/db @conn) [user])))
+  @(d/transact (d/db @conn)
+               [(select-keys user [:db.ref/name :user/email :user/password])]))

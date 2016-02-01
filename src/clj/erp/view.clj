@@ -19,6 +19,7 @@
                              "/css/font-awesome.min.css"
                              "/css/sass.css"]))]
    [:body
+    [:div#canvas]
     #_[:div.canvas
      [:header {:class "navbar navbar-inverse navbar-fixed-top", :role "navigation"}
       [:div.container

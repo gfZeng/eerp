@@ -6,7 +6,7 @@
  :dependencies '[[adzerk/boot-cljs          "1.7.228-1"   :scope "test"]
                  [mathias/boot-sassc "0.1.5" :scope "test"]
                  [adzerk/boot-cljs-repl     "0.3.0"      :scope "test"]
-                 [adzerk/boot-reload        "0.4.4"      :scope "test"]
+                 [adzerk/boot-reload        "0.4.5"      :scope "test"]
                  [pandeiro/boot-http        "0.7.1-SNAPSHOT"      :scope "test"]
                  [com.cemerick/piggieback "0.2.1" :scope "test"]     ;; needed by bREPL
                  [weasel "0.7.0" :scope "test"]                      ;; needed by bREPL
@@ -39,7 +39,6 @@
                  [datascript "0.15.0"]
                  [rum "0.6.0"]
                  [secretary "1.2.3"]
-                 [venantius/accountant "0.1.6"]
                  [com.andrewmcveigh/cljs-time "0.4.0"]
                  [cljsjs/jquery "2.1.4-0"]
                  [cljsjs/bootstrap "3.3.6-0"]

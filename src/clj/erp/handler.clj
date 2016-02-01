@@ -19,11 +19,11 @@
   (route/resources "/" {:root nil}))
 
 (defroutes public-api-routes
-  (POST "/sessions/new" _ ctrl/login))
+  (POST "/sessions" _ ctrl/login))
 
 (def app
   (app-handler
-   [page-routes (context (util/api-path) _ public-api-routes)]
+   [page-routes (context (util/api-path) _ (routes public-api-routes))]
    :session-options {:cookie-name "erp"
                      :store (cookie-store)}
    :ring-defaults (dissoc-in site-defaults [:security :anti-forgery])
