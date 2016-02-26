@@ -1,12 +1,10 @@
 (ns erp.session
   (:refer-clojure :exclude [get])
-  (:require-macros [jayq.macros :refer (let-ajax)])
   (:require jayq.core
+            [erp.util :refer-macros (let-api)]))
 
-            [erp.util :refer (api-path)]))
 
-
-(def $session (atom {:user {:nickname "isaac"}}))
+(def $session (atom nil))
 
 (defn get
   ([key]
@@ -15,8 +13,9 @@
    (clojure.core/get @$session key not-found)))
 
 (defn login-do [did-login-fn]
-  (let-ajax [session {:url (api-path "/sessions")
-                      :data (:user $session)
-                      :type "POST"}]
+  (let-api [session {:url "sessions"
+                     :data {:user (:user @$session)}
+                     :contentType "application/edn"
+                     :type "POST"}]
     (reset! $session (merge @$session session))
     did-login-fn))

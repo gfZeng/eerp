@@ -12,14 +12,14 @@
 
 (defn fail [keys]
   (throw
-   (ex-info (get-in ERROR-MSG keys) nil)))
+   (ex-info (get-in ERROR-MSG keys) {})))
 
 (defapi login
   [{:as user
     :keys [user/email user/password]}]
   (let [u (entity/by-ident [:user/email email])]
     (if (= (md5 password) (:user/password u))
-      (select-keys u [:db/id :db.ref/name])
+      {:user (select-keys u [:db/id :user/email :user/name])}
       (fail [:password :incrorrect]))))
 
 (defapi register

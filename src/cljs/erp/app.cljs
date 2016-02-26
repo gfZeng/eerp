@@ -7,36 +7,41 @@
             [tools.util :as utl]
             [tools.history :as h :refer-macros (on-navigate)]
 
-            [erp.util :refer (api-path)]
+            [erp.util :as util :refer (api-path field) :refer-macros (form)]
 
-            [erp.session :as session :refer ($session) :refer-macros (with-login)]))
+            [erp.session :as session :refer ($session) :refer-macros (with-login)]
+            [clojure.string :as string]))
 
-(secretary/set-config! :prefix "!")
+(secretary/set-config! :prefix "#!")
 
 (def $main-view (atom (constantly [:div "You are lost ..."])))
 
 
-
 (defc login-view []
-  [:form.login-form
+  (form
+   {:for $session}
+   {:class "login-form"}
    [:div.form-group
-    [:label {:for "Email"} "Email"]
-    [:input#email.form-control {:placeholder "Email"
-                                :on-change #(swap! $session assoc-in [:user :user/email] (.. % -target -value))}]]
+    [:label {:for "email"} "Email"]
+    (field [:user :user/email]
+           {:id "email" :class "form-control"
+            :placeholder "Email"})]
    [:div.form-group
-    [:label {:for "Password"} "Password"]
-    [:input#password.form-control {:placeholder "Password" :type "password"
-                                   :on-change #(swap! $session assoc-in [:user :user/password] (.. % -target -value))}]]
+    [:label {:for "password"} "Password"]
+    (field [:user :user/password]
+           {:id "password" :class "form-control"
+            :type "password"
+            :placeholder "Password"})]
    [:div.form-group
     [:a.btn.btn-primary
      {:type "submit"
-      :on-click #(session/with-login)} "Register"]]])
+      :on-click #(session/with-login)} "Register"]]))
 
 
 (defroute "/" []
   (reset! $main-view (fn [] [:div "damn shitoff"])))
 
-(defroute "/sessions/new" []
+(defroute login-uri "/sessions/new" []
   (reset! $main-view login-view))
 
 (defc main-view  < rum/reactive []
@@ -63,8 +68,8 @@
          [:span.fa.fa-user.fa-lg.btn]]
         [:ul.dropdown-menu
          [:li [:a "设置"]]
-         [:li [:a {:href "/api/v1/sessions" :data-method "DELETE"} "退出"]]]]
-       [:li [:a.fa.fa-user.fa-lg.btn]])]]])
+         [:li [:a {:href (login-uri) :data-method "DELETE"} "退出"]]]]
+       [:li [:a.fa.fa-user.fa-lg.btn {:href (login-uri)}]])]]])
 
 (defc canvas []
   [:.canvas
@@ -77,6 +82,6 @@
 
 (defn init []
   (enable-console-print!)
-  (secretary/dispatch! (h/token))
-  (on-navigate (secretary/dispatch! (h/token)))
+  (secretary/dispatch! js/location.hash)
+  (on-navigate (secretary/dispatch! js/location.hash))
   (render))

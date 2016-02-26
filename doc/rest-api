@@ -1,14 +1,31 @@
-:uri-prefix = http://localhost:3000/api/v1
+# -*- mode: restclient; -*-
+
+:url-prefix = http://localhost:3000/api/v1
 
 
 ## login api
-POST :uri-prefix/sessions/new
+POST :url-prefix/sessions
 Content-Type: application/json; charset=utf-8
+Accept: application/json
+
+{
+  "user":
+  {
+    "user/email": "isaac@email.com",
+    "user/password": "lazy"
+  }
+}
+
+## register
+POST :url-prefix/users
+Content-Type: application/json; charset=utf-8
+Accept: application/json
 
 {
   "user":
   {
     "user/name": "isaac",
+    "user/email": "isaac@email.com",
     "user/password": "lazy"
   }
 }

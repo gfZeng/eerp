@@ -10,5 +10,10 @@
   (get ident (by-ident ident)))
 
 (defn add-user [user]
-  @(d/transact (d/db @conn)
-               [(select-keys user [:db.ref/name :user/email :user/password])]))
+  (let [user (-> user
+                 (select-keys [:user/name :user/email :user/password])
+                 (assoc :db/id (d/tempid :user)))]
+    {:db/id (-> @(d/transact @conn [user])
+                :tempids
+                :first
+                :val)}))
