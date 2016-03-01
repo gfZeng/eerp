@@ -29,6 +29,7 @@
                  [liberator "0.13"]
                  [lib-noir "0.9.9"]
                  [hiccup "1.0.5"]
+                 [datomic-session-store "0.1.0"]
 
                  ;;; datomic
                  [com.datomic/datomic-pro "0.9.5344"]

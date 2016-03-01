@@ -1,5 +1,6 @@
 (ns erp.ctrl
   (:require [tools.compojure :refer (defapi dispatch)]
+            [noir.session :as sess]
 
             [erp.entity :as entity]
 
@@ -19,7 +20,9 @@
     :keys [user/email user/password]}]
   (let [u (entity/by-ident [:user/email email])]
     (if (= (md5 password) (:user/password u))
-      {:user (select-keys u [:db/id :user/email :user/name])}
+      (do
+        (sess/put! :user {:db/id (:db/id u)})
+        {:user (select-keys u [:db/id :user/email :user/name])})
       (fail [:password :incrorrect]))))
 
 (defapi register

@@ -5,8 +5,6 @@
                 [[jayq.macros :refer (let-ajax)]])))
 
 
-(def ^:dynamic *form-opts* nil)
-
 (defn api-path
   ([] "/api/v1")
   ([& subs]
@@ -34,44 +32,63 @@
           ~@body))
 
      (defmacro form [opts & fields]
-       `(binding [*form-opts* (let [opts# ~opts]
-                                (if (map? opts#)
-                                  opts#
-                                  {:for opts#}))]
-          (add-watch (:for *form-opts*) :update-fields-values
-                     (let [fields# (:>fields *form-opts*)]
+       `(binding [*form-opts* (atom
+                               (let [opts# ~opts]
+                                 (if (instance? ~'cljs.core/Atom opts#)
+                                   {:for opts#}
+                                   opts#)))]
+          (let [form-opts# *form-opts*
+                ~'*form-data* (:for @form-opts#)
+                ~'*flush-in* (fn
+                               ([] (~'erp.util/form-flush-in @form-opts#))
+                               ([f#] (~'erp.util/form-flush-in @form-opts# f#)))]
+            (add-watch ~'*form-data* :update-fields-values
                        (fn [r# k# ov# nv#]
                          (let [diff-v# (first (data/diff nv# ov#))]
-                           (doseq [f# fields#]
+                           (doseq [f# (:>fields @form-opts#)]
                              (when-let [value# (get-in diff-v# (:for f#))]
                                (-> (js/document.getElementById (:id f#))
                                    .-value
-                                   (set! ((:> f#) value#)))))))))
-          [:form ~@fields])))
+                                   (set! ((or (:> f#) identity) value#))))))))
+            [:form ~@fields]))))
 
    :cljs
    (do
-     (let [counter (atom -1)]
-       (defn field-id []
-         (str "field-" (swap! counter inc))))
+     (def ^:dynamic *form-opts* nil)
 
-     (defn field
-       ([opts]
-        (field opts nil))
-       ([opts attrs]
-        (let [opts (if (map? opts) opts {:for opts})]
-          (let [data (:for *form-opts*)
-                attrs (-> attrs
-                          (assoc
-                           :id  (or (:id attrs) (field-id))
-                           :value (get-in @data (:for opts))
-                           :on-change
-                           (fn [e]
-                             (swap! data assoc-in (:for opts)
-                                    ((or (:< opts)
-                                         identity)
-                                     (.. e -target -value)))
-                             (println ">>>>>>" @data))))]
-            (when (:> opts)
-              (swap! data update-in [:>fields] conj (assoc opts :id (:id attrs))))
-            [:input attrs]))))))
+     (defn form-flush-in
+       ([form-opts]
+        (run! #(form-flush-in form-opts %) (:>fields form-opts)))
+       ([form-opts f]
+        (swap! (:for form-opts) assoc-in (:for f)
+               ((or (:< f) identity)
+                (-> (:id f)
+                    js/document.getElementById
+                    .-value)))))
+
+     (let [counter (atom -1)
+           field-id (fn []
+                      (str "field-" (swap! counter inc)))]
+       (defn field
+         ([opts]
+          (field opts nil))
+         ([opts attrs]
+          (let [opts (if (map? opts) opts {:for opts})]
+            (let [data (:for @*form-opts*)
+                  auto-flush-in? (:auto-flush-in? opts (:auto-flush-in? @*form-opts*))
+                  attrs (-> attrs
+                            (assoc
+                             :id  (or (:id attrs) (field-id))
+                             :value (get-in @data (:for opts))
+                             :on-change
+                             (fn [e]
+                               (when auto-flush-in?
+                                 (swap! data assoc-in (:for opts)
+                                        ((or (:< opts)
+                                             identity)
+                                         (.. e -target -value))))
+                               (when-let [f (:on-change attrs)]
+                                 (f e)))))]
+              (swap! *form-opts* update :>fields conj
+                     (assoc opts :id (:id attrs)))
+              [:input attrs])))))))

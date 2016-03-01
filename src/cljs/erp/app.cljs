@@ -19,7 +19,7 @@
 
 (defc login-view []
   (form
-   {:for $session}
+   $session
    {:class "login-form"}
    [:div.form-group
     [:label {:for "email"} "Email"]
@@ -35,7 +35,7 @@
    [:div.form-group
     [:a.btn.btn-primary
      {:type "submit"
-      :on-click #(session/with-login)} "Register"]]))
+      :on-click #(do (*flush-in*) (session/with-login))} "Register"]]))
 
 
 (defroute "/" []
