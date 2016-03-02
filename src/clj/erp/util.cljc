@@ -40,8 +40,8 @@
           (let [form-opts# *form-opts*
                 ~'*form-data* (:for @form-opts#)
                 ~'*flush-in* (fn
-                               ([] (~'erp.util/form-flush-in @form-opts#))
-                               ([f#] (~'erp.util/form-flush-in @form-opts# f#)))]
+                               ([] (form-flush-in @form-opts#))
+                               ([f#] (form-flush-in @form-opts# f#)))]
             (add-watch ~'*form-data* :update-fields-values
                        (fn [r# k# ov# nv#]
                          (let [diff-v# (first (data/diff nv# ov#))]
